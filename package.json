@@ -1,0 +1,20 @@
+{
+  "name": "auto24-seed",
+  "version": "1.0.0",
+  "description": "Large data seeder for Auto24 schema (Bun) - generate 2M+ rows",
+  "type": "module",
+  "scripts": {
+    "seed": "bun run scripts/seed.ts",
+    "preflight": "pwsh ./scripts/preflight.ps1",
+    "smoke": "bun run scripts/smoke_check.ts",
+    "csv-dry": "pwsh ./scripts/csv_dry_run.ps1",
+    "csv-gen": "bun run scripts/csv_seed.ts",
+    "csv-load": "pwsh ./scripts/load_data.ps1"
+  },
+  "dependencies": {
+    "mysql2": "*"
+  },
+  "devDependencies": {
+    "@types/node": "*"
+  }
+}
