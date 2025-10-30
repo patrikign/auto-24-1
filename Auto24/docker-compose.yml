@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: auto24-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change_me}
+      MYSQL_DATABASE: ${DB_NAME:-auto24}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+      - ./dump.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    command: [
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci",
+      "--innodb-buffer-pool-size=1G",
+      "--innodb-log-file-size=256M",
+      "--innodb-flush-log-at-trx-commit=2",
+      "--max-allowed-packet=256M",
+      "--local-infile=1"
+    ]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - auto24-network
+
+  seeder:
+    build: .
+    container_name: auto24-seeder
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DB_HOST: mysql
+    command: ["bun", "run", "seed"]
+    restart: 'no'
+    networks:
+      - auto24-network
+
+volumes:
+  mysqldata:
+
+networks:
+  auto24-network:
+    driver: bridge

@@ -113,3 +113,62 @@ pwsh ./scripts/csv_dry_run.ps1
 If these steps succeed, proceed with the full CSV generation and load.
 
 
+## Docker Setup (recommended)
+
+The easiest repeatable way to run the project is with Docker Compose. This works on Windows, macOS and Linux.
+
+Prerequisites
+
+- Docker and Docker Compose installed (see https://docs.docker.com/get-docker/)
+- Bun installed (https://bun.sh) — required for running the seeder script inside the seeder container or locally
+
+Quick steps
+
+1. Copy `.env.example` to `.env` and edit the values (set `MYSQL_ROOT_PASSWORD`, adjust `SEEDER_*` targets if needed):
+
+```powershell
+copy .env.example .env
+notepad .env
+```
+
+2. Start the stack (MySQL will import `dump.sql` on first boot):
+
+```powershell
+docker compose up --build -d
+```
+
+3. Watch logs and wait until MySQL reports it is ready for connections (look for "ready for connections"):
+
+```powershell
+docker compose logs -f mysql
+```
+
+4. Run the seeder (from the seeder container or locally):
+
+Option A — let the seeder service run inside docker-compose (it is configured to depend on the DB healthcheck):
+
+```powershell
+docker compose up --build
+```
+
+Option B — run the seeder locally (useful for iterating or if you prefer local bun):
+
+```powershell
+bun install mysql2
+bun run seed
+```
+
+Tips and notes
+
+- The `dump.sql` file is mounted into the MySQL container as an init script so the schema is imported automatically on first boot.
+- The compose file includes a healthcheck; the seeder waits for the DB to be healthy before starting.
+- If you plan to seed the full 2,000,000 rows, ensure the host has enough CPU, RAM and disk. Consider the CSV + LOAD DATA workflow (`scripts/csv_seed.ts` + `scripts/load_data.ps1`) for faster throughput.
+- To stop and remove data:
+
+```powershell
+docker compose down -v
+```
+
+If you need to tune MySQL for bulk loads, adjust the `command` flags in `docker-compose.yml` (the compose file includes some example tuning flags already).
+
+

@@ -31,7 +31,8 @@ const DB_NAME = env.DB_NAME || process.env.DB_NAME || 'auto24';
 
 const BATCH = Number(env.SEEDER_BATCH_SIZE || process.env.SEEDER_BATCH_SIZE || 20000);
 const VEHICLES_TARGET = Number(env.SEEDER_VEHICLES || process.env.SEEDER_VEHICLES || 2000000);
-const USERS_TARGET = Number(env.SEEDER_USERS || process.env.SEEDER_USERS || VEHICLES_TARGET);
+// default USERS_TARGET should match README recommendation (400k) instead of falling back to VEHICLES_TARGET
+const USERS_TARGET = Number(env.SEEDER_USERS || process.env.SEEDER_USERS || 400000);
 const VEHICLE_IMAGES_TARGET = Number(env.SEEDER_VEHICLE_IMAGES || process.env.SEEDER_VEHICLE_IMAGES || VEHICLES_TARGET);
 const MAKES = Number(env.SEEDER_MAKES || process.env.SEEDER_MAKES || 200);
 const MODELS_PER_MAKE = Number(env.SEEDER_MODELS_PER_MAKE || process.env.SEEDER_MODELS_PER_MAKE || 50);
